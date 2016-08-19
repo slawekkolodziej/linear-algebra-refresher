@@ -59,13 +59,13 @@ class Vector(object):
     __rmul__ = __mul__
 
 
-    def length(self):
+    def magnitude(self):
         return Decimal(math.sqrt(sum([coord * coord for coord in self.coordinates])))
 
 
     def normalize(self):
         try:
-            return self * (Decimal('1.0') / self.length())
+            return (Decimal('1.0') / self.magnitude()) * self
         except ZeroDivisionError:
             raise Exception('Cannot normalize the zero vector!')
 
@@ -75,7 +75,25 @@ class Vector(object):
         return sum(coords)
 
 
-    def angle(self, vec):
+    def angle(self, vec, tolerance=1e-10):
         u1 = self.normalize()
         u2 = vec.normalize()
-        return math.acos(u1.dot(u2))
+        return math.acos(round(u1.dot(u2), 10))
+
+
+
+    def is_orthogonal_to(self, vec, tolerance=1e-10):
+        return abs(self.dot(vec)) < tolerance
+
+
+    def is_parallel_to(self, vec):
+        return (
+            vec.is_zero() or
+            self.is_zero() or
+            self.angle(vec) == 0 or
+            self.angle(vec) == math.pi
+        )
+
+
+    def is_zero(self, tolerance=1e-10):
+        return self.magnitude() < tolerance
