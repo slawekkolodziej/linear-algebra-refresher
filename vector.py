@@ -81,7 +81,6 @@ class Vector(object):
         return math.acos(round(u1.dot(u2), 10))
 
 
-
     def is_orthogonal_to(self, vec, tolerance=1e-10):
         return abs(self.dot(vec)) < tolerance
 
@@ -97,3 +96,13 @@ class Vector(object):
 
     def is_zero(self, tolerance=1e-10):
         return self.magnitude() < tolerance
+
+
+    def projection_on(self, vec):
+        u = vec.normalize()
+        magnitude = self.dot(u)
+        return u * magnitude
+
+
+    def orthogonal_to(self, vec):
+        return self - self.projection_on(vec)
