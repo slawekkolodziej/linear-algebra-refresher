@@ -14,8 +14,8 @@ class Plane(object):
 
         if not normal_vector:
             all_zeros = ['0']*self.dimension
-            normal_vector = Vector(all_zeros)
-        self.normal_vector = normal_vector
+            normal_vector = all_zeros
+        self.normal_vector = Vector(normal_vector)
 
         if not constant_term:
             constant_term = Decimal('0')
@@ -88,6 +88,18 @@ class Plane(object):
 
         return output
 
+    def is_parallel_to(self, p2):
+        return self.normal_vector.is_parallel_to(p2.normal_vector)
+
+
+    def __eq__(self, p2):
+        if self.is_parallel_to(p2) == False:
+            return False
+
+        vec = self.basepoint - p2.basepoint
+        return (
+            vec.is_orthogonal_to(self.normal_vector)
+        )
 
     @staticmethod
     def first_nonzero_index(iterable):
