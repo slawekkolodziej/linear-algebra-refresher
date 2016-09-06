@@ -26,7 +26,7 @@ class Plane(object):
 
     def set_basepoint(self):
         try:
-            n = self.normal_vector
+            n = self.normal_vector.coordinates
             c = self.constant_term
             basepoint_coords = ['0']*self.dimension
 
@@ -88,6 +88,7 @@ class Plane(object):
 
         return output
 
+
     def is_parallel_to(self, p2):
         return self.normal_vector.is_parallel_to(p2.normal_vector)
 
@@ -100,6 +101,7 @@ class Plane(object):
         return (
             vec.is_orthogonal_to(self.normal_vector)
         )
+
 
     @staticmethod
     def first_nonzero_index(iterable):
