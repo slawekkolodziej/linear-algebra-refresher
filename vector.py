@@ -58,6 +58,24 @@ class Vector(object):
 
     __rmul__ = __mul__
 
+    def __iter__(self):
+        self.current = 0
+        return self
+
+    def next(self):
+        if self.current >= len(self.coordinates):
+            raise StopIteration
+        else:
+            current_value = self.coordinates[self.current]
+            self.current += 1
+            return current_value
+
+    def __len__(self):
+        return len(self.coordinates)
+
+    def __getitem__(self, i):
+        return self.coordinates[i]
+
 
     def magnitude(self):
         return Decimal(math.sqrt(sum([coord * coord for coord in self.coordinates])))
