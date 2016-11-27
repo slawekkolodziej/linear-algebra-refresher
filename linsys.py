@@ -2,7 +2,7 @@ from decimal import Decimal, getcontext
 from copy import deepcopy
 
 from vector import Vector
-from plane import Plane
+from plane import Plane, MyDecimal
 
 getcontext().prec = 30
 
@@ -41,22 +41,63 @@ class LinearSystem(object):
         self[row_to_be_added_to] = target_plane + new_plane
 
 
-    def indices_of_first_nonzero_terms_in_each_row(self):
-        num_equations = len(self)
-        num_variables = self.dimension
+    # def indices_of_first_nonzero_terms_in_each_row(self):
+    #     num_equations = len(self)
+    #     num_variables = self.dimension
 
-        indices = [-1] * num_equations
+    #     indices = [-1] * num_equations
 
-        for i, p in enumerate(self.planes):
-            try:
-                indices[i] = p.first_nonzero_index(p.normal_vector)
-            except Exception as e:
-                if str(e) == Plane.NO_NONZERO_ELTS_FOUND_MSG:
+    #     for i, p in enumerate(self.planes):
+    #         try:
+    #             indices[i] = p.first_nonzero_index(p.normal_vector)
+    #         except Exception as e:
+    #             if str(e) == Plane.NO_NONZERO_ELTS_FOUND_MSG:
+    #                 continue
+    #             else:
+    #                 raise e
+
+    #     return indices
+
+
+    def compute_triangular_form(self):
+        system = deepcopy(self)
+        num_variables = system.dimension
+        j = 0
+
+        for i, plane in enumerate(system.planes):
+            while j < num_variables:
+                c = MyDecimal(plane.normal_vector[j])
+                if c.is_near_zero() and system.swap_with_row_below_for_nonzero_coefficient(i, j) == False:
+                    j += 1
                     continue
-                else:
-                    raise e
 
-        return indices
+                system.clear_equaions_below(i, j)
+                j += 1
+                break
+
+        print system
+        return system
+
+
+    def swap_with_row_below_for_nonzero_coefficient(self, row_index, variable_index):
+        k = row_index + 1
+
+        while k < len(self.planes):
+            if self.planes[k].normal_vector[variable_index] != 0:
+                self.swap_rows(row_index, k)
+                return True
+
+        return False
+
+
+    def clear_equaions_below(self, row_index, variable_index):
+        number_of_equations = len(self.planes)
+        coefficient = self.planes[row_index].normal_vector[variable_index]
+
+        for n in range(row_index + 1, number_of_equations):
+            plane = self.planes[n]
+            equation = plane.normal_vector[row_index] / (coefficient * Decimal(-1.0))
+            self.add_multiple_times_row_to_row(equation, row_index, n)
 
 
     def __len__(self):

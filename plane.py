@@ -98,6 +98,15 @@ class Plane(object):
 
 
     def __eq__(self, p2):
+        if self.normal_vector.is_zero():
+            if not p2.normal_vector.is_zero():
+                return True
+
+            return MyDecimal(self.constant_term - p2.constant_term).is_near_zero()
+
+        if p2.normal_vector.is_zero():
+            return False
+
         if self.is_parallel_to(p2) == False:
             return False
 
