@@ -100,6 +100,10 @@ class LinearSystem(object):
             self.add_multiple_times_row_to_row(equation, row_index, n)
 
 
+    def compute_rref(self):
+        tf = self.compute_triangular_form()
+        return tf
+
     def __len__(self):
         return len(self.planes)
 
