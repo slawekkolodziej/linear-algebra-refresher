@@ -79,6 +79,16 @@ class LinearSystem(object):
         return system
 
 
+    def compute_rref(self):
+        tf = self.compute_triangular_form()
+        num_variables = tf.dimension
+
+        for i, plane in reversed(list(enumerate(tf.planes))):
+            print plane, i, num_variables
+
+        return tf
+
+
     def swap_with_row_below_for_nonzero_coefficient(self, row_index, variable_index):
         k = row_index + 1
 
@@ -99,10 +109,6 @@ class LinearSystem(object):
             equation = plane.normal_vector[row_index] / (coefficient * Decimal(-1.0))
             self.add_multiple_times_row_to_row(equation, row_index, n)
 
-
-    def compute_rref(self):
-        tf = self.compute_triangular_form()
-        return tf
 
     def __len__(self):
         return len(self.planes)
