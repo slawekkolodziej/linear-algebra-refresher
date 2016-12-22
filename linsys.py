@@ -75,16 +75,29 @@ class LinearSystem(object):
                 j += 1
                 break
 
-        print system
         return system
 
 
     def compute_rref(self):
         tf = self.compute_triangular_form()
+        tf.planes.reverse()
+
         num_variables = tf.dimension
 
-        for i, plane in reversed(list(enumerate(tf.planes))):
-            print plane, i, num_variables
+        for i, plane in enumerate(tf.planes):
+            try:
+                j = Plane.first_nonzero_index(plane.normal_vector)
+            except Exception as e:
+                if str(e) == Plane.NO_NONZERO_ELTS_FOUND_MSG:
+                    continue
+                else:
+                    raise e
+
+            coefficient = Decimal(1.0) / plane.normal_vector[j]
+            tf.multiply_coefficient_and_row(coefficient, i)
+            tf.clear_equaions_below(i, j)
+
+        tf.planes.reverse()
 
         return tf
 
@@ -106,8 +119,9 @@ class LinearSystem(object):
 
         for n in range(row_index + 1, number_of_equations):
             plane = self.planes[n]
-            equation = plane.normal_vector[row_index] / (coefficient * Decimal(-1.0))
-            self.add_multiple_times_row_to_row(equation, row_index, n)
+            if plane.normal_vector[variable_index] != 0:
+                equation = plane.normal_vector[variable_index] / (coefficient * Decimal(-1.0))
+                self.add_multiple_times_row_to_row(equation, row_index, n)
 
 
     def __len__(self):
