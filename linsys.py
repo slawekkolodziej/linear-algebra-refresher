@@ -41,22 +41,33 @@ class LinearSystem(object):
         self[row_to_be_added_to] = target_plane + new_plane
 
 
-    # def indices_of_first_nonzero_terms_in_each_row(self):
-    #     num_equations = len(self)
-    #     num_variables = self.dimension
+    def indices_of_first_nonzero_terms_in_each_row(self):
+        num_equations = len(self)
+        num_variables = self.dimension
 
-    #     indices = [-1] * num_equations
+        indices = [-1] * num_equations
 
-    #     for i, p in enumerate(self.planes):
-    #         try:
-    #             indices[i] = p.first_nonzero_index(p.normal_vector)
-    #         except Exception as e:
-    #             if str(e) == Plane.NO_NONZERO_ELTS_FOUND_MSG:
-    #                 continue
-    #             else:
-    #                 raise e
+        for i, p in enumerate(self.planes):
+            try:
+                indices[i] = p.first_nonzero_index(p.normal_vector)
+            except Exception as e:
+                if str(e) == Plane.NO_NONZERO_ELTS_FOUND_MSG:
+                    continue
+                else:
+                    raise e
 
-    #     return indices
+        return indices
+
+    def compute_solution(self):
+        rref = self.compute_rref()
+
+        rref.raise_exception_if_contradictory_equation()
+        rref.raise_exception_if_too_few_pivots()
+
+        num_variables = rref.dimension
+        coordinates = [ rref.planes[i].constant_term for i in range(num_variables) ]
+
+        return Vector(coordinates)
 
 
     def compute_triangular_form(self):
@@ -100,6 +111,30 @@ class LinearSystem(object):
         tf.planes.reverse()
 
         return tf
+
+
+    def raise_exception_if_too_few_pivots(self):
+        pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
+        num_pivots = sum([ 1 if index >= 0 else 0 for index in pivot_indices ])
+        num_variables = self.dimension
+
+        if num_pivots < num_variables:
+            raise Exception(self.INF_SOLUTIONS_MSG)
+
+
+    def raise_exception_if_contradictory_equation(self):
+        for plane in self.planes:
+            try:
+                plane.first_nonzero_index(plane.normal_vector)
+            except Exception as e:
+                if str(e) == 'No nonzero elements found':
+                    constant_term = MyDecimal(plane.constant_term)
+
+                    if not constant_term.is_near_zero():
+                        raise Exception(self.NO_SOLUTIONS_MSG)
+
+                else:
+                    raise e
 
 
     def swap_with_row_below_for_nonzero_coefficient(self, row_index, variable_index):
