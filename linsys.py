@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from vector import Vector
 from plane import Plane, MyDecimal
+from parametrization import Parametrization
 
 getcontext().prec = 30
 
@@ -57,6 +58,7 @@ class LinearSystem(object):
                     raise e
 
         return indices
+
 
     def compute_solution(self):
         rref = self.compute_rref()
@@ -118,7 +120,13 @@ class LinearSystem(object):
         num_pivots = sum([ 1 if index >= 0 else 0 for index in pivot_indices ])
         num_variables = self.dimension
 
+        print pivot_indices, num_pivots, num_variables
         if num_pivots < num_variables:
+        #     plane = self.planes[0]
+        #     normal_vector = plane.normal_vector
+        #     coefficient = normal_vector[0]
+
+        #     print .normal_vector[1:]
             raise Exception(self.INF_SOLUTIONS_MSG)
 
 
@@ -178,6 +186,6 @@ class LinearSystem(object):
 
     def __str__(self):
         ret = 'Linear System:\n'
-        temp = ['Equation {}: {}'.format(i+1,p) for i,p in enumerate(self.planes)]
+        temp = ['Equation {}: {}'.format(i+1,p) for i, p in enumerate(self.planes)]
         ret += '\n'.join(temp)
         return ret
