@@ -7,7 +7,7 @@ from vector import Vector
 try:
     s = LinearSystem([
         Plane(normal_vector=Vector(['0.786','0.786','0.588']), constant_term='-0.714'),
-        Plane(normal_vector=Vector(['-0.138', '-0.138', '0.244']), constant_term='0.319')
+        Plane(normal_vector=Vector(['-0.131', '-0.131', '0.244']), constant_term='0.319')
     ])
     print s.compute_solution()
 except Exception as e:

@@ -10,21 +10,19 @@ class Parametrization:
 
         try:
             for v in direction_vectors:
-                assert v.dimension == direction_vectors.dimension
+                assert v.dimension == self.dimension
 
         except AssertionError:
             raise Exception(BASEPT_AND_DIR_VECTORS_MUST_BE_IN_SAME_DIM_MSG)
 
-
-    def transform_plane(plane):
-        coefficient = plane.normal_vector[0]
-
-        for v in plane.normal_vector[1:-1:]:
-            print v
-
-
-
     def __str__(self):
-        print self.dimension
-        print self.direction_vectors
-        print self.basepoint
+        output = ''
+        for coord in range(self.dimension):
+            output += 'x_{} = {} '.format(coord + 1,
+                                          round(self.basepoint[coord], 3))
+            for free_var, vector in enumerate(self.direction_vectors):
+                output += '+ {} t_{}'.format(round(vector[coord], 3),
+                                             free_var + 1)
+            output += '\n'
+
+        return output

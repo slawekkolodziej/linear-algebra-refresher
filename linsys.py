@@ -61,15 +61,24 @@ class LinearSystem(object):
 
 
     def compute_solution(self):
+        try:
+            return self.do_gaussian_elimination_and_parameterize_solution()
+
+        except Exception as e:
+            if str(e) == self.NO_SOLUTIONS_MSG:
+                return str(e)
+            else:
+                raise e
+
+
+    def do_gaussian_elimination_and_parameterize_solution(self):
         rref = self.compute_rref()
-
         rref.raise_exception_if_contradictory_equation()
-        rref.raise_exception_if_too_few_pivots()
 
-        num_variables = rref.dimension
-        coordinates = [ rref.planes[i].constant_term for i in range(num_variables) ]
+        direction_vectors = rref.extract_direction_vectors_for_parametrization()
+        basepoint = rref.extract_basepoint_for_parametrization()
 
-        return Vector(coordinates)
+        return Parametrization(basepoint, direction_vectors)
 
 
     def compute_triangular_form(self):
@@ -115,20 +124,6 @@ class LinearSystem(object):
         return tf
 
 
-    def raise_exception_if_too_few_pivots(self):
-        pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
-        num_pivots = sum([ 1 if index >= 0 else 0 for index in pivot_indices ])
-        num_variables = self.dimension
-
-        if num_pivots < num_variables:
-        #     plane = self.planes[0]
-        #     normal_vector = plane.normal_vector
-        #     coefficient = normal_vector[0]
-
-        #     print .normal_vector[1:]
-            raise Exception(self.INF_SOLUTIONS_MSG)
-
-
     def raise_exception_if_contradictory_equation(self):
         for plane in self.planes:
             try:
@@ -142,6 +137,47 @@ class LinearSystem(object):
 
                 else:
                     raise e
+
+
+    def extract_basepoint_for_parametrization(self):
+        num_variables = self.dimension
+        pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
+
+        basepoint_coords = [0] * num_variables
+
+        for i, plane in enumerate(self.planes):
+            pivot_variable = pivot_indices[i]
+
+            if pivot_variable < 0:
+                break
+
+            basepoint_coords[pivot_variable] = plane.constant_term
+
+        return Vector(basepoint_coords)
+
+
+    def extract_direction_vectors_for_parametrization(self):
+        num_variables = self.dimension
+        pivot_indices = self.indices_of_first_nonzero_terms_in_each_row()
+        free_variable_indices = set(range(num_variables)) - set(pivot_indices)
+
+        direction_vectors = []
+
+        for free_variable in free_variable_indices:
+            vector_coords = [0] * num_variables
+            vector_coords[free_variable] = 1
+
+            for i, plane in enumerate(self.planes):
+                pivot_variable = pivot_indices[i]
+
+                if pivot_variable < 0:
+                    break
+
+                vector_coords[pivot_variable] = -plane.normal_vector[free_variable]
+
+            direction_vectors.append(Vector(vector_coords))
+
+        return direction_vectors
 
 
     def swap_with_row_below_for_nonzero_coefficient(self, row_index, variable_index):
