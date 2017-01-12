@@ -120,7 +120,6 @@ class LinearSystem(object):
         num_pivots = sum([ 1 if index >= 0 else 0 for index in pivot_indices ])
         num_variables = self.dimension
 
-        print pivot_indices, num_pivots, num_variables
         if num_pivots < num_variables:
         #     plane = self.planes[0]
         #     normal_vector = plane.normal_vector
