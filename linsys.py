@@ -152,6 +152,7 @@ class LinearSystem(object):
             if self.planes[k].normal_vector[variable_index] != 0:
                 self.swap_rows(row_index, k)
                 return True
+            k += 1
 
         return False
 
